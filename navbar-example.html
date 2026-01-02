@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>导航条使用示例 - 章鱼工具集</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, #1a1a2e 0%, #16213e 25%, #0f0f23 50%, #000000 100%);
+            z-index: -1;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            margin-top: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #00f5ff, #ff00ff, #ffff00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        h2 {
+            color: #00f5ff;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        
+        .code-block {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .highlight {
+            color: #00f5ff;
+            font-weight: 600;
+        }
+        
+        .demo-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #00f5ff, #0080ff);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 128, 255, 0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #ff00ff, #ff0080);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #ff4757, #ff3742);
+        }
+        
+        ul {
+            padding-left: 20px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+            color: #a0a0a0;
+        }
+        
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .feature-item {
+            background: rgba(0, 245, 255, 0.05);
+            border: 1px solid rgba(0, 245, 255, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .feature-title {
+            color: #00f5ff;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .feature-desc {
+            color: #a0a0a0;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="background"></div>
+    
+    <div class="container">
+        <h1>🐙 导航条脚本使用指南</h1>
+        
+        <div class="section">
+            <h2>📖 简介</h2>
+            <p>这是一个统一的导航条管理脚本，用于章鱼工具集的所有页面。通过这个脚本，您可以：</p>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="feature-icon">🔧</div>
+                    <div class="feature-title">统一管理</div>
+                    <div class="feature-desc">一个脚本管理所有页面导航</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📱</div>
+                    <div class="feature-title">响应式设计</div>
+                    <div class="feature-desc">自适应移动端和桌面端</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">⚡</div>
+                    <div class="feature-title">动态配置</div>
+                    <div class="feature-desc">支持动态添加/删除导航项</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🎨</div>
+                    <div class="feature-title">美观样式</div>
+                    <div class="feature-desc">现代化的视觉效果</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>🚀 快速开始</h2>
+            <p>在您的HTML页面中引入导航条脚本：</p>
+            <div class="code-block">
+&lt;!-- 在页面底部引入导航条脚本 --&gt;<br>
+&lt;<span class="highlight">script</span> src="navbar.js"&gt;&lt;/<span class="highlight">script</span>&gt;
+            </div>
+            <p>就这么简单！脚本会自动：</p>
+            <ul>
+                <li>检测当前页面并设置对应的active状态</li>
+                <li>注入必要的CSS样式</li>
+                <li>创建导航条HTML结构</li>
+                <li>绑定交互事件</li>
+                <li>调整页面布局避免遮挡</li>
+            </ul>
+        </div>
+        
+        <div class="section">
+            <h2>⚙️ 高级配置</h2>
+            <p>您可以通过JavaScript API进行高级配置：</p>
+            
+            <h3 style="color: #ff00ff; margin-top: 30px; margin-bottom: 15px;">添加新的导航项</h3>
+            <div class="code-block">
+<span class="highlight">octopusNavbar</span>.addNavItem({
+    href: 'new-tool.html',
+    text: '🆕 新工具',
+    id: 'new-tool'
+});
+            </div>
+            
+            <h3 style="color: #ff00ff; margin-top: 30px; margin-bottom: 15px;">移除导航项</h3>
+            <div class="code-block">
+<span class="highlight">octopusNavbar</span>.removeNavItem('tool-id');
+            </div>
+            
+            <h3 style="color: #ff00ff; margin-top: 30px; margin-bottom: 15px;">更新整个配置</h3>
+            <div class="code-block">
+<span class="highlight">octopusNavbar</span>.updateConfig({
+    brand: {
+        text: '🔥 新品牌',
+        href: 'index.html'
+    },
+    navItems: [
+        // 新的导航项列表
+    ]
+});
+            </div>
+            
+            <h3 style="color: #ff00ff; margin-top: 30px; margin-bottom: 15px;">手动设置活动页面</h3>
+            <div class="code-block">
+<span class="highlight">octopusNavbar</span>.setActivePage('index-3.html');
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>🎮 演示功能</h2>
+            <p>点击下面的按钮体验导航条的动态功能：</p>
+            
+            <div class="demo-buttons">
+                <button class="btn" onclick="addDemoItem()">➕ 添加演示项</button>
+                <button class="btn btn-secondary" onclick="removeDemoItem()">➖ 移除演示项</button>
+                <button class="btn" onclick="setRandomActive()">🎯 随机激活</button>
+                <button class="btn btn-danger" onclick="resetNavbar()">🔄 重置导航</button>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>📋 迁移指南</h2>
+            <p>如果您要将现有页面迁移到使用这个导航条脚本：</p>
+            <ol style="color: #a0a0a0; padding-left: 20px;">
+                <li style="margin-bottom: 10px;">删除页面中现有的导航条HTML代码</li>
+                <li style="margin-bottom: 10px;">删除导航条相关的CSS样式</li>
+                <li style="margin-bottom: 10px;">删除导航条相关的JavaScript代码（如toggleNavbar函数）</li>
+                <li style="margin-bottom: 10px;">在页面底部引入navbar.js脚本</li>
+                <li style="margin-bottom: 10px;">测试页面功能是否正常</li>
+            </ol>
+        </div>
+        
+        <div class="section">
+            <h2>🔧 技术特性</h2>
+            <ul>
+                <li><strong>自动检测：</strong>自动识别当前页面并设置对应的active状态</li>
+                <li><strong>响应式设计：</strong>完美适配桌面端和移动端</li>
+                <li><strong>无依赖：</strong>纯JavaScript实现，无需额外库</li>
+                <li><strong>模块化：</strong>面向对象设计，易于扩展和维护</li>
+                <li><strong>兼容性：</strong>兼容现代浏览器</li>
+                <li><strong>性能优化：</strong>高效的DOM操作和事件处理</li>
+                <li><strong>可访问性：</strong>支持键盘导航和屏幕阅读器</li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- 引入导航条脚本 -->
+    <script src="navbar.js"></script>
+    
+    <script>
+        // 演示功能
+        let demoItemAdded = false;
+        
+        function addDemoItem() {
+            if (!demoItemAdded) {
+                octopusNavbar.addNavItem({
+                    href: '#demo',
+                    text: '🎮 演示项',
+                    id: 'demo-item'
+                });
+                demoItemAdded = true;
+                alert('✅ 演示项已添加到导航条！');
+            } else {
+                alert('⚠️ 演示项已存在！');
+            }
+        }
+        
+        function removeDemoItem() {
+            if (demoItemAdded) {
+                octopusNavbar.removeNavItem('demo-item');
+                demoItemAdded = false;
+                alert('✅ 演示项已从导航条移除！');
+            } else {
+                alert('⚠️ 没有演示项可以移除！');
+            }
+        }
+        
+        function setRandomActive() {
+            const pages = ['index.html', 'index-1.html', 'index-2.html', 'index-3.html', 'index-4.html', 'index-5.html'];
+            const randomPage = pages[Math.floor(Math.random() * pages.length)];
+            octopusNavbar.setActivePage(randomPage);
+            alert(`✅ 已将 "${randomPage}" 设置为活动页面！`);
+        }
+        
+        function resetNavbar() {
+            // 重新创建导航条实例
+            octopusNavbar.destroy();
+            setTimeout(() => {
+                window.octopusNavbar = new OctopusNavbar();
+                demoItemAdded = false;
+                alert('✅ 导航条已重置！');
+            }, 100);
+        }
+        
+        // 页面加载完成提示
+        window.addEventListener('load', () => {
+            console.log('🐙 导航条脚本演示页面加载完成！');
+        });
+    </script>
+</body>
+</html>

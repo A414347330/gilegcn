@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>章鱼电商ROI计算器 - 专业投资回报率分析工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            overflow-x: hidden;
+            min-height: 100vh;
+            padding: 120px 20px 40px 20px;
+        }
+        
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, #1a1a2e 0%, #16213e 25%, #0f0f23 50%, #000000 100%);
+            z-index: -1;
+        }
+        
+        .background::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="%23ffffff" stroke-width="0.1" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>') repeat;
+            opacity: 0.3;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 10px auto 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 15px;
+            color: #ffffff;
+            text-shadow: 0 0 30px rgba(0, 245, 255, 0.3);
+        }
+        
+        h1 .gradient-text {
+            background: linear-gradient(135deg, #00f5ff, #ff00ff, #ffff00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #a0a0a0;
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+        
+        .calculator-layout {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 40px;
+            align-items: start;
+        }
+        
+        .input-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+        }
+        
+        .input-section h2 {
+            color: #00f5ff;
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+        
+        .input-grid {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .input-group {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .input-group:hover {
+            border-color: rgba(0, 245, 255, 0.3);
+            box-shadow: 0 0 15px rgba(0, 245, 255, 0.1);
+        }
+        
+        .input-group label {
+            display: block;
+            color: #e0e0e0;
+            font-weight: 500;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+        
+        .input-group .required {
+            color: #ff4444;
+        }
+        
+        .input-wrapper {
+            position: relative;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 1rem;
+            font-family: 'Monaco', monospace;
+            transition: all 0.3s ease;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #00f5ff;
+            box-shadow: 0 0 15px rgba(0, 245, 255, 0.2);
+        }
+        
+        .input-group input[type="number"]::-webkit-outer-spin-button,
+        .input-group input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        .input-group input[type="number"] {
+            -moz-appearance: textfield;
+        }
+        
+        .currency-symbol {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #00f5ff;
+            font-weight: 600;
+            pointer-events: none;
+        }
+        
+        .percentage-symbol {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #00f5ff;
+            font-weight: 600;
+            pointer-events: none;
+        }
+        
+        .input-group input.with-symbol {
+            padding-left: 35px;
+        }
+        
+        .input-group input.with-percentage {
+            padding-right: 35px;
+        }
+        
+        .results-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            position: sticky;
+            top: 20px;
+        }
+        
+        .results-section h2 {
+            color: #00f5ff;
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .result-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .result-card:hover {
+            border-color: rgba(0, 245, 255, 0.3);
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.1);
+        }
+        
+        .result-label {
+            color: #a0a0a0;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .result-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            font-family: 'Monaco', monospace;
+            margin-bottom: 5px;
+        }
+        
+        .roi-positive {
+            color: #00ff80;
+            text-shadow: 0 0 15px rgba(0, 255, 128, 0.3);
+        }
+        
+        .roi-negative {
+            color: #ff4444;
+            text-shadow: 0 0 15px rgba(255, 68, 68, 0.3);
+        }
+        
+        .profit-positive {
+            color: #00f5ff;
+            text-shadow: 0 0 15px rgba(0, 245, 255, 0.3);
+        }
+        
+        .profit-negative {
+            color: #ff4444;
+            text-shadow: 0 0 15px rgba(255, 68, 68, 0.3);
+        }
+        
+        .result-unit {
+            color: #a0a0a0;
+            font-size: 1rem;
+            font-weight: 400;
+        }
+        
+        .calculation-details {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .calculation-details h3 {
+            color: #00f5ff;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+        }
+        
+        .detail-item:last-child {
+            border-bottom: none;
+            font-weight: 600;
+            color: #00f5ff;
+        }
+        
+        .detail-label {
+            color: #a0a0a0;
+        }
+        
+        .detail-value {
+            color: #ffffff;
+            font-family: 'Monaco', monospace;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #00f5ff, #0080ff);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 20px rgba(0, 128, 255, 0.3);
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 128, 255, 0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #ff00ff, #ff0080);
+            box-shadow: 0 4px 20px rgba(255, 0, 128, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            box-shadow: 0 8px 30px rgba(255, 0, 128, 0.4);
+        }
+        
+        .tips-section {
+            background: rgba(0, 245, 255, 0.05);
+            border: 1px solid rgba(0, 245, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .tips-section h3 {
+            color: #00f5ff;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+        
+        .tips-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .tips-list li {
+            color: #a0a0a0;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .tips-list li::before {
+            content: '💡';
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+        
+
+        
+
+        
+        @media (max-width: 1024px) {
+            .calculator-layout {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .results-section {
+                position: static;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .result-value {
+                font-size: 1.8rem;
+            }
+        }
+        
+        /* 滚动条样式 */
+        .calculation-details::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .calculation-details::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+        
+        .calculation-details::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #00f5ff 0%, #0080ff 50%, #ff00ff 100%);
+            border-radius: 3px;
+        }
+        
+        .calculation-details::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #00f5ff 0%, #0080ff 30%, #ff00ff 70%, #ffff00 100%);
+        }
+    </style>
+</head>
+<body>
+
+    
+    <div class="background"></div>
+    
+    <div class="container">
+        <h1><span class="gradient-text">章鱼电商ROI计算器</span></h1>
+        <p class="subtitle">专业的投资回报率分析工具，助您精准把控电商盈利能力</p>
+        
+        <div class="calculator-layout">
+            <!-- 输入区域 -->
+            <div class="input-section">
+                <h2>📊 收入与成本数据</h2>
+                
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label>销售收入 <span class="required">*</span></label>
+                        <div class="input-wrapper">
+                            <span class="currency-symbol">¥</span>
+                            <input type="number" id="revenue" class="with-symbol" placeholder="0.00" step="0.01" min="0">
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>商品成本 <span class="required">*</span></label>
+                        <div class="input-wrapper">
+                            <span class="currency-symbol">¥</span>
+                            <input type="number" id="cost" class="with-symbol" placeholder="0.00" step="0.01" min="0">
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>平台服务扣点（平台提成比例）</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="platformFee" class="with-percentage" placeholder="0.00" step="0.01" min="0" max="100">
+                            <span class="percentage-symbol">%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>佣金率（主播和运营提成比例）</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="commissionRate" class="with-percentage" placeholder="0.00" step="0.01" min="0" max="100">
+                            <span class="percentage-symbol">%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>广告费（推广产生的费用，非主播提成）</label>
+                        <div class="input-wrapper">
+                            <span class="currency-symbol">¥</span>
+                            <input type="number" id="adCost" class="with-symbol" placeholder="0.00" step="0.01" min="0">
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>快递费</label>
+                        <div class="input-wrapper">
+                            <span class="currency-symbol">¥</span>
+                            <input type="number" id="shippingCost" class="with-symbol" placeholder="0.00" step="0.01" min="0">
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>包装费</label>
+                        <div class="input-wrapper">
+                            <span class="currency-symbol">¥</span>
+                            <input type="number" id="packagingCost" class="with-symbol" placeholder="0.00" step="0.01" min="0">
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>运费险</label>
+                        <div class="input-wrapper">
+                            <span class="currency-symbol">¥</span>
+                            <input type="number" id="insuranceCost" class="with-symbol" placeholder="0.00" step="0.01" min="0">
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>其他费用</label>
+                        <div class="input-wrapper">
+                            <span class="currency-symbol">¥</span>
+                            <input type="number" id="otherCost" class="with-symbol" placeholder="0.00" step="0.01" min="0">
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn" id="calculateBtn">🚀 计算ROI</button>
+                <button class="btn btn-secondary" id="resetBtn">🔄 重置数据</button>
+            </div>
+            
+            <!-- 结果区域 -->
+            <div class="results-section">
+                <h2>📈 计算结果</h2>
+                
+                <div class="result-card">
+                    <div class="result-label">投资回报率 (ROI)</div>
+                    <div class="result-value roi-positive" id="roiValue">0.00<span class="result-unit">%</span></div>
+                </div>
+                
+                <div class="result-card">
+                    <div class="result-label">净利润</div>
+                    <div class="result-value profit-positive" id="profitValue">¥ 0.00</div>
+                </div>
+                
+                <div class="calculation-details">
+                    <h3>📋 计算明细</h3>
+                    <div class="detail-item">
+                        <span class="detail-label">销售收入:</span>
+                        <span class="detail-value" id="detailRevenue">¥ 0.00</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">商品成本:</span>
+                        <span class="detail-value" id="detailCost">¥ 0.00</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">平台扣点:</span>
+                        <span class="detail-value" id="detailPlatformFee">¥ 0.00</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">佣金费用:</span>
+                        <span class="detail-value" id="detailCommission">¥ 0.00</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">广告费用:</span>
+                        <span class="detail-value" id="detailAdCost">¥ 0.00</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">物流费用:</span>
+                        <span class="detail-value" id="detailLogistics">¥ 0.00</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">其他费用:</span>
+                        <span class="detail-value" id="detailOther">¥ 0.00</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">总成本:</span>
+                        <span class="detail-value" id="detailTotalCost">¥ 0.00</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">净利润:</span>
+                        <span class="detail-value" id="detailNetProfit">¥ 0.00</span>
+                    </div>
+                </div>
+                
+                <div class="tips-section">
+                    <h3>💡 ROI分析提示</h3>
+                    <ul class="tips-list">
+                        <li>ROI > 100% 表示投资回报良好</li>
+                        <li>ROI = 100% 表示收支平衡</li>
+                        <li>ROI < 100% 表示存在亏损风险</li>
+                        <li>建议定期监控ROI变化趋势</li>
+                        <li>优化成本结构可提升ROI表现</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class ROICalculator {
+            constructor() {
+                this.initElements();
+                this.bindEvents();
+                this.loadSavedData();
+            }
+            
+            initElements() {
+                // 输入元素
+                this.revenue = document.getElementById('revenue');
+                this.cost = document.getElementById('cost');
+                this.platformFee = document.getElementById('platformFee');
+                this.commissionRate = document.getElementById('commissionRate');
+                this.adCost = document.getElementById('adCost');
+                this.shippingCost = document.getElementById('shippingCost');
+                this.packagingCost = document.getElementById('packagingCost');
+                this.insuranceCost = document.getElementById('insuranceCost');
+                this.otherCost = document.getElementById('otherCost');
+                
+                // 按钮
+                this.calculateBtn = document.getElementById('calculateBtn');
+                this.resetBtn = document.getElementById('resetBtn');
+                
+                // 结果显示元素
+                this.roiValue = document.getElementById('roiValue');
+                this.profitValue = document.getElementById('profitValue');
+                
+                // 明细显示元素
+                this.detailRevenue = document.getElementById('detailRevenue');
+                this.detailCost = document.getElementById('detailCost');
+                this.detailPlatformFee = document.getElementById('detailPlatformFee');
+                this.detailCommission = document.getElementById('detailCommission');
+                this.detailAdCost = document.getElementById('detailAdCost');
+                this.detailLogistics = document.getElementById('detailLogistics');
+                this.detailOther = document.getElementById('detailOther');
+                this.detailTotalCost = document.getElementById('detailTotalCost');
+                this.detailNetProfit = document.getElementById('detailNetProfit');
+            }
+            
+            bindEvents() {
+                // 按钮事件
+                this.calculateBtn.addEventListener('click', () => this.calculate());
+                this.resetBtn.addEventListener('click', () => this.reset());
+                
+                // 输入事件 - 实时计算
+                const inputs = [this.revenue, this.cost, this.platformFee, this.commissionRate, 
+                               this.adCost, this.shippingCost, this.packagingCost, this.insuranceCost, this.otherCost];
+                
+                inputs.forEach(input => {
+                    input.addEventListener('input', () => {
+                        this.calculate();
+                        this.saveData();
+                    });
+                });
+                
+                // 回车键计算
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        this.calculate();
+                    }
+                });
+            }
+            
+            calculate() {
+                // 获取输入值
+                const revenue = parseFloat(this.revenue.value) || 0;
+                const cost = parseFloat(this.cost.value) || 0;
+                const platformFeeRate = parseFloat(this.platformFee.value) || 0;
+                const commissionRate = parseFloat(this.commissionRate.value) || 0;
+                const adCost = parseFloat(this.adCost.value) || 0;
+                const shippingCost = parseFloat(this.shippingCost.value) || 0;
+                const packagingCost = parseFloat(this.packagingCost.value) || 0;
+                const insuranceCost = parseFloat(this.insuranceCost.value) || 0;
+                const otherCost = parseFloat(this.otherCost.value) || 0;
+                
+                // 计算各项费用
+                const platformFeeAmount = revenue * (platformFeeRate / 100);
+                const commissionAmount = revenue * (commissionRate / 100);
+                const logisticsCost = shippingCost + packagingCost + insuranceCost;
+                
+                // 计算总成本
+                const totalCost = cost + platformFeeAmount + commissionAmount + adCost + logisticsCost + otherCost;
+                
+                // 计算净利润
+                const netProfit = revenue - totalCost;
+                
+                // 计算ROI
+                let roi = 0;
+                if (totalCost > 0) {
+                    roi = (netProfit / totalCost) * 100;
+                }
+                
+                // 更新显示
+                this.updateResults(roi, netProfit);
+                this.updateDetails(revenue, cost, platformFeeAmount, commissionAmount, adCost, logisticsCost, otherCost, totalCost, netProfit);
+            }
+            
+            updateResults(roi, netProfit) {
+                // 更新ROI显示
+                this.roiValue.innerHTML = `${roi.toFixed(2)}<span class="result-unit">%</span>`;
+                
+                // 设置ROI颜色
+                this.roiValue.className = 'result-value ' + (roi >= 0 ? 'roi-positive' : 'roi-negative');
+                
+                // 更新净利润显示
+                this.profitValue.textContent = `¥ ${netProfit.toFixed(2)}`;
+                
+                // 设置净利润颜色
+                this.profitValue.className = 'result-value ' + (netProfit >= 0 ? 'profit-positive' : 'profit-negative');
+            }
+            
+            updateDetails(revenue, cost, platformFeeAmount, commissionAmount, adCost, logisticsCost, otherCost, totalCost, netProfit) {
+                this.detailRevenue.textContent = `¥ ${revenue.toFixed(2)}`;
+                this.detailCost.textContent = `¥ ${cost.toFixed(2)}`;
+                this.detailPlatformFee.textContent = `¥ ${platformFeeAmount.toFixed(2)}`;
+                this.detailCommission.textContent = `¥ ${commissionAmount.toFixed(2)}`;
+                this.detailAdCost.textContent = `¥ ${adCost.toFixed(2)}`;
+                this.detailLogistics.textContent = `¥ ${logisticsCost.toFixed(2)}`;
+                this.detailOther.textContent = `¥ ${otherCost.toFixed(2)}`;
+                this.detailTotalCost.textContent = `¥ ${totalCost.toFixed(2)}`;
+                this.detailNetProfit.textContent = `¥ ${netProfit.toFixed(2)}`;
+            }
+            
+            reset() {
+                // 清空所有输入
+                const inputs = [this.revenue, this.cost, this.platformFee, this.commissionRate, 
+                               this.adCost, this.shippingCost, this.packagingCost, this.insuranceCost, this.otherCost];
+                
+                inputs.forEach(input => {
+                    input.value = '';
+                });
+                
+                // 重置结果显示
+                this.roiValue.innerHTML = '0.00<span class="result-unit">%</span>';
+                this.roiValue.className = 'result-value roi-positive';
+                this.profitValue.textContent = '¥ 0.00';
+                this.profitValue.className = 'result-value profit-positive';
+                
+                // 重置明细显示
+                const detailElements = [this.detailRevenue, this.detailCost, this.detailPlatformFee, 
+                                       this.detailCommission, this.detailAdCost, this.detailLogistics, 
+                                       this.detailOther, this.detailTotalCost, this.detailNetProfit];
+                
+                detailElements.forEach(element => {
+                    element.textContent = '¥ 0.00';
+                });
+                
+                // 清除保存的数据
+                localStorage.removeItem('roi-calculator-data');
+                
+                this.showNotification('🔄 数据已重置');
+            }
+            
+            saveData() {
+                const data = {
+                    revenue: this.revenue.value,
+                    cost: this.cost.value,
+                    platformFee: this.platformFee.value,
+                    commissionRate: this.commissionRate.value,
+                    adCost: this.adCost.value,
+                    shippingCost: this.shippingCost.value,
+                    packagingCost: this.packagingCost.value,
+                    insuranceCost: this.insuranceCost.value,
+                    otherCost: this.otherCost.value
+                };
+                
+                localStorage.setItem('roi-calculator-data', JSON.stringify(data));
+            }
+            
+            loadSavedData() {
+                const savedData = localStorage.getItem('roi-calculator-data');
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    
+                    this.revenue.value = data.revenue || '';
+                    this.cost.value = data.cost || '';
+                    this.platformFee.value = data.platformFee || '';
+                    this.commissionRate.value = data.commissionRate || '';
+                    this.adCost.value = data.adCost || '';
+                    this.shippingCost.value = data.shippingCost || '';
+                    this.packagingCost.value = data.packagingCost || '';
+                    this.insuranceCost.value = data.insuranceCost || '';
+                    this.otherCost.value = data.otherCost || '';
+                    
+                    // 如果有数据，自动计算
+                    if (data.revenue || data.cost) {
+                        this.calculate();
+                    }
+                }
+            }
+            
+            showNotification(message) {
+                // 创建通知元素
+                const notification = document.createElement('div');
+                notification.textContent = message;
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: linear-gradient(135deg, #00f5ff, #0080ff);
+                    color: white;
+                    padding: 12px 20px;
+                    border-radius: 10px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    box-shadow: 0 4px 20px rgba(0, 128, 255, 0.3);
+                    z-index: 10000;
+                    animation: slideIn 0.3s ease;
+                `;
+                
+                // 添加动画样式
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes slideIn {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                    @keyframes slideOut {
+                        from { transform: translateX(0); opacity: 1; }
+                        to { transform: translateX(100%); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                document.body.appendChild(notification);
+                
+                // 3秒后自动消失
+                setTimeout(() => {
+                    notification.style.animation = 'slideOut 0.3s ease';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                        if (style.parentNode) {
+                            style.parentNode.removeChild(style);
+                        }
+                    }, 300);
+                }, 3000);
+            }
+        }
+        
+
+        
+        // 初始化ROI计算器
+        const roiCalculator = new ROICalculator();
+        
+        // 添加示例数据按钮（隐藏功能，双击标题触发）
+        document.querySelector('h1').addEventListener('dblclick', () => {
+            roiCalculator.revenue.value = '10000';
+            roiCalculator.cost.value = '6000';
+            roiCalculator.platformFee.value = '5';
+            roiCalculator.commissionRate.value = '10';
+            roiCalculator.adCost.value = '500';
+            roiCalculator.shippingCost.value = '200';
+            roiCalculator.packagingCost.value = '50';
+            roiCalculator.insuranceCost.value = '20';
+            roiCalculator.otherCost.value = '100';
+            
+            roiCalculator.calculate();
+            roiCalculator.showNotification('📊 已加载示例数据');
+        });
+    </script>
+    
+    <!-- 引入导航条脚本 -->
+    <script src="navbar.js"></script>
+</body>
+</html>

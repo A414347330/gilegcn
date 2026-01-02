@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>章鱼直播话术文字数量查看器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            overflow-x: hidden;
+            min-height: 100vh;
+            padding: 120px 20px 40px 20px;
+        }
+        
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, #1a1a2e 0%, #16213e 25%, #0f0f23 50%, #000000 100%);
+            z-index: -1;
+        }
+        
+        .background::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="%23ffffff" stroke-width="0.1" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>') repeat;
+            opacity: 0.3;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 10px auto 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, #00f5ff, #ff00ff, #ffff00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(0, 245, 255, 0.3);
+        }
+        
+        h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #00f5ff;
+        }
+        
+        .text-input {
+            width: 100%;
+            height: 300px;
+            padding: 24px;
+            margin-bottom: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            resize: vertical;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            background: rgba(0, 0, 0, 0.3);
+            color: #ffffff;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .text-input:focus {
+            outline: none;
+            border-color: #00f5ff;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 20px rgba(0, 245, 255, 0.2);
+        }
+        
+        .text-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .stats-group {
+            margin-bottom: 32px;
+        }
+        
+        .stats-header {
+            margin-bottom: 16px;
+            color: #00f5ff;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .stat-box {
+            padding: 20px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border-left: 4px solid #00f5ff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .stat-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 245, 255, 0.2);
+            border-color: rgba(0, 245, 255, 0.3);
+        }
+        
+        .stat-box .label {
+            color: #a0a0a0;
+            font-size: 0.875rem;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .stat-box .count {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #00f5ff;
+            margin: 8px 0;
+            text-shadow: 0 0 10px rgba(0, 245, 255, 0.3);
+        }
+        
+        .stat-box .unit {
+            color: #a0a0a0;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #00f5ff, #0080ff);
+            color: white;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-right: 12px;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 128, 255, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 128, 255, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            background: rgba(255, 255, 255, 0.1);
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+        
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 32px;
+            justify-content: center;
+        }
+        
+        /* 滚动条样式 */
+        .text-input::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        .text-input::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            margin: 2px;
+        }
+        
+        .text-input::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #00f5ff 0%, #0080ff 50%, #ff00ff 100%);
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 10px rgba(0, 245, 255, 0.4);
+            transition: all 0.3s ease;
+        }
+        
+        .text-input::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #00f5ff 0%, #0080ff 30%, #ff00ff 70%, #ffff00 100%);
+            box-shadow: 0 0 15px rgba(0, 245, 255, 0.6), 0 0 25px rgba(255, 0, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .text-input::-webkit-scrollbar-thumb:active {
+            background: linear-gradient(180deg, #00ffff 0%, #0099ff 50%, #ff33ff 100%);
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.8), 0 0 35px rgba(255, 0, 255, 0.5);
+        }
+        
+        .text-input::-webkit-scrollbar-corner {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Firefox滚动条样式 */
+        .text-input {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(0, 245, 255, 0.6) rgba(255, 255, 255, 0.05);
+        }
+        
+
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 10px;
+            }
+            
+            .container {
+                padding: 24px;
+                border-radius: 16px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+                margin-right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    
+    <div class="background"></div>
+    
+    <div class="container">
+        <h1>章鱼直播话术文字数量查看器</h1>
+        
+        <textarea id="textInput" class="text-input" placeholder="输入(或粘贴)统计字数的内容:"></textarea>
+        
+        <div class="stats-group">
+            <h2 class="stats-header">统计结果：</h2>
+            <div class="stats-container">
+                <div class="stat-box">
+                    <div class="label">共计:</div>
+                    <div id="totalChars" class="count">0</div>
+                    <div class="unit">个字数</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">共计:</div>
+                    <div id="totalParagraphs" class="count">0</div>
+                    <div class="unit">个字符</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stats-group">
+            <h2 class="stats-header">详细统计：</h2>
+            <div class="stats-container">
+                <div class="stat-box">
+                    <div class="label">包含:</div>
+                    <div id="chineseChars" class="count">0</div>
+                    <div class="unit">个汉字</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">包含:</div>
+                    <div id="englishWords" class="count">0</div>
+                    <div class="unit">个英文(全角)</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">包含:</div>
+                    <div id="letters" class="count">0</div>
+                    <div class="unit">个字母</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">包含:</div>
+                    <div id="numbers" class="count">0</div>
+                    <div class="unit">个数字</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="button-group">
+            <button id="clearButton">全部清空</button>
+        </div>
+    </div>
+
+    <script>
+        // 获取DOM元素
+        const textInput = document.getElementById('textInput');
+        const totalChars = document.getElementById('totalChars');
+        const totalParagraphs = document.getElementById('totalParagraphs');
+        const chineseChars = document.getElementById('chineseChars');
+        const englishWords = document.getElementById('englishWords');
+        const letters = document.getElementById('letters');
+        const numbers = document.getElementById('numbers');
+        const clearButton = document.getElementById('clearButton');
+        
+        // 统计函数
+        function countStats() {
+            const text = textInput.value;
+            
+            // 计算总字数（不包括空格和换行符）
+            const charCount = text.replace(/\s/g, '').length;
+            
+            // 计算总字符数（包括所有字符）
+            const totalCharCount = text.length;
+            
+            // 计算中文字符
+            const chineseCount = (text.match(/[\u4e00-\u9fa5]/g) || []).length;
+            
+            // 计算英文单词（全角）
+            const englishCount = (text.match(/[\uff21-\uff3a\uff41-\uff5a]/g) || []).length;
+            
+            // 计算字母
+            const letterCount = (text.match(/[a-zA-Z]/g) || []).length;
+            
+            // 计算数字
+            const numberCount = (text.match(/[0-9]/g) || []).length;
+            
+            // 更新显示
+            totalChars.textContent = charCount;
+            totalParagraphs.textContent = totalCharCount;
+            chineseChars.textContent = chineseCount;
+            englishWords.textContent = englishCount;
+            letters.textContent = letterCount;
+            numbers.textContent = numberCount;
+        }
+        
+        // 监听输入变化
+        textInput.addEventListener('input', countStats);
+        
+        // 清空按钮
+        clearButton.addEventListener('click', function() {
+            textInput.value = '';
+            countStats();
+        });
+        
+
+        
+        // 初始统计
+        countStats();
+    </script>
+    
+    <!-- 引入导航条脚本 -->
+    <script src="navbar.js"></script>
+</body>
+</html>
